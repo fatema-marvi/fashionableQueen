@@ -281,6 +281,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
                 height={300}
                 className="border rounded-md"
               />
+
             </div>
           )}
 
