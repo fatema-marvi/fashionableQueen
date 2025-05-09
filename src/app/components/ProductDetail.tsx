@@ -19,7 +19,7 @@ interface ProductDetailProps {
     image: { asset: { url: string } }
     imageUrl: string
     gallery?: { asset: { url: string } }[]
-    sizechart?: { asset: { url: string } }
+    sizeChart?: { asset: { url: string } }
     piecesIncluded?: string[]
     reviews?: {
       rating: number
@@ -271,11 +271,11 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
           ) : null}
 
           {/* Size Chart */}
-          {product.sizechart?.asset.url && (
+          {product.sizeChart?.asset.url && (
             <div className="mt-6">
               <p className="text-sm font-medium mb-1">Size Chart</p>
               <Image
-                src={product.sizechart.asset.url || "/placeholder.svg"}
+                src={product.sizeChart.asset.url || "/placeholder.svg"}
                 alt="Size Chart"
                 width={300}
                 height={300}
@@ -407,7 +407,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
 
       {/* You May Also Like Section */}
       <div className="mt-12">
-        <h3 className="text-xl font-semibold mb-4">You May Also Like</h3>
+        <h3 className="text-3xl text-red-900 font-semibold mb-4">You May Also Like</h3>
         {relatedProducts && relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {relatedProducts.map((item) => (

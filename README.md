@@ -34,3 +34,44 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+import { notFound } from "next/navigation";
+import ProductDetail from "@/app/components/ProductDetail";
+import { Metadata } from "next";
+
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+async function getProduct(id: string) {
+  const res = await fetch(`https://your-api.com/api/product/${id}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export default async function ProductPage({ params }: PageProps) {
+  const product = await getProduct(params.id);
+
+  if (!product) return notFound();
+
+  return <ProductDetail product={product} />;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const product = await getProduct(params.id);
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+
+  return {
+    title: product.name,
+    description: product.description,
+  };
+}

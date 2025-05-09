@@ -2,12 +2,14 @@ import { client } from '@/sanity/lib/client';
 import ProductDetail from '@/app/components/ProductDetail'; // ✅ Import the correct component
 
 interface Props {
-  params: {
-    id: string;
-  };
-}
+  params: { id: string };
+};
+
 
 const UnstitchProductDetailPage = async ({ params }: Props) => {
+  // Await the params to access its properties
+  const { id } = await params;
+
   const query = `*[_type == "unstitch" && _id == $id][0]{
     _id,
     title,
@@ -23,7 +25,7 @@ const UnstitchProductDetailPage = async ({ params }: Props) => {
     sizeChart{asset->{url}}
   }`;
 
-  const product = await client.fetch(query, { id: params.id });
+  const product = await client.fetch(query, { id });
 
   if (!product) {
     return (
