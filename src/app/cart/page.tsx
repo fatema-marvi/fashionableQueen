@@ -10,28 +10,31 @@ const CartPage = () => {
     console.log("🛒 Cart contents:", cart);
   }, [cart]);
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fashionable-queen.vercel.app/"; // Replace as needed
+
   const handleCheckout = () => {
     if (cart.length === 0) {
       alert("Your cart is empty!");
       return;
     }
 
-    // Generate WhatsApp message with image URLs
     const message = cart
-      .map(
-        (item, index) =>
-          `${index + 1}) ${item.name}
+      .map((item, index) => {
+        // Ensure full URL for image
+        const imageUrl = item.imageUrl.startsWith("http")
+          ? item.imageUrl
+          : `${baseUrl}${item.imageUrl.startsWith("/") ? "" : "/"}${item.imageUrl}`;
+
+        return `${index + 1}) ${item.name}
 Size: ${item.selectedSize}, Color: ${item.selectedColor}, Qty: ${item.quantity}
 Price: PKR ${item.price.toFixed(2)}
-Image: ${item.imageUrl}`
-      )
-      .join("%0A%0A");
+Image: ${imageUrl}`;
+      })
+      .join("\n\n");
 
-    const total = cart.reduce((total, item) => total + item.price * item.quantity, 0) + 250;
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + 250;
 
-    const finalMessage = `Hello! I'd like to place the following order:%0A%0A${message}%0A%0AGrand Total: PKR ${total.toFixed(
-      2
-    )}`;
+    const finalMessage = `Hello! I'd like to place the following order:\n\n${message}\n\nGrand Total: PKR ${total.toFixed(2)}`;
 
     const whatsappURL = `https://wa.me/923232979158?text=${encodeURIComponent(finalMessage)}`;
     window.open(whatsappURL, "_blank");
@@ -54,7 +57,13 @@ Image: ${item.imageUrl}`
               key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
               className="flex items-center border-b py-4"
             >
-              <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="rounded-lg" />
+              <Image
+                src={item.imageUrl.startsWith("http") ? item.imageUrl : `${baseUrl}${item.imageUrl}`}
+                alt={item.name}
+                width={80}
+                height={80}
+                className="rounded-lg"
+              />
               <div className="ml-4 flex-grow">
                 <h2 className="text-lg font-semibold">{item.name}</h2>
                 <p className="text-gray-600">

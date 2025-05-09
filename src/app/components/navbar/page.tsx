@@ -17,11 +17,11 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center space-x-4 w-full lg:w-auto">
           <Link
-            href="/"
-            className="text-6xl font-[Playfair_Display] font-extrabold text-blue-700 tracking-wide italic pl-2 hover:text-pink-900 transition duration-300"
-          >
-            ✨Fashionable Queen
-          </Link>
+    href="/"
+    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-[Playfair_Display] font-extrabold text-blue-700 tracking-wide italic hover:text-pink-900 transition duration-300"
+  >
+    ✨Fashionable Queen
+  </Link>
         </div>
 
         {/* Mobile menu toggle */}
