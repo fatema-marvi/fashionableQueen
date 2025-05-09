@@ -45,7 +45,7 @@ const StitchPage = () => {
        return (
          <div key={product._id} className="border rounded-lg p-4 shadow-md">
                <div className="relative w-full h-64">
-                 <Image src={product.imageUrl} alt={product.title} layout="fill" objectFit="cover" />
+                 <Image src={product.imageUrl} alt={product.title} fill objectFit="object-cover w-full h-full rounded" />
                </div>
                <h2 className="text-lg font-semibold mt-2">{product.title}</h2>
                <p className="text-gray-700">{isDiscounted ? (

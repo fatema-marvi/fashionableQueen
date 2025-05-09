@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import { useCart } from "@/app/components/context/cartContext";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -7,7 +7,7 @@ const CartPage = () => {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
 
   useEffect(() => {
-    console.log("🛒 Cart contents:", cart); // Debugging log
+    console.log("🛒 Cart contents:", cart);
   }, [cart]);
 
   const handleCheckout = () => {
@@ -16,29 +16,29 @@ const CartPage = () => {
       return;
     }
 
-    // Generate WhatsApp message
+    // Generate WhatsApp message with image URLs
     const message = cart
       .map(
         (item, index) =>
-          `${index + 1}) ${item.name} - Size: ${item.selectedSize}, Color: ${item.selectedColor}, Qty: ${item.quantity}`
+          `${index + 1}) ${item.name}
+Size: ${item.selectedSize}, Color: ${item.selectedColor}, Qty: ${item.quantity}
+Price: PKR ${item.price.toFixed(2)}
+Image: ${item.imageUrl}`
       )
-      .join("%0A");
+      .join("%0A%0A");
 
     const total = cart.reduce((total, item) => total + item.price * item.quantity, 0) + 250;
-    const finalMessage = `Hello! I'd like to place the following order:%0A${message}%0A%0AGrand Total: PKR ${total.toFixed(
+
+    const finalMessage = `Hello! I'd like to place the following order:%0A%0A${message}%0A%0AGrand Total: PKR ${total.toFixed(
       2
     )}`;
 
-    const whatsappURL = `https://wa.me/923232979158?text=${finalMessage}`; // Replace with your WhatsApp number
+    const whatsappURL = `https://wa.me/923232979158?text=${encodeURIComponent(finalMessage)}`;
     window.open(whatsappURL, "_blank");
   };
 
   const deliveryCharge = 0;
-
-  // Calculate Subtotal
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-
-  // Calculate Grand Total
   const grandTotal = subtotal + deliveryCharge;
 
   return (
@@ -49,7 +49,6 @@ const CartPage = () => {
         <p className="text-gray-600">Your cart is empty.</p>
       ) : (
         <div className="bg-white p-6 rounded-lg shadow-md">
-          {/* Cart Items */}
           {cart.map((item) => (
             <div
               key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
@@ -58,19 +57,25 @@ const CartPage = () => {
               <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="rounded-lg" />
               <div className="ml-4 flex-grow">
                 <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p className="text-gray-600">Size: {item.selectedSize} | Color: {item.selectedColor}</p>
+                <p className="text-gray-600">
+                  Size: {item.selectedSize} | Color: {item.selectedColor}
+                </p>
                 <p className="text-gray-800 font-semibold">PKR {item.price.toFixed(2)}</p>
 
                 <div className="flex items-center mt-2">
                   <button
-                    onClick={() => updateQuantity(item.productId, item.selectedSize, item.selectedColor, Math.max(1, item.quantity - 1))}
+                    onClick={() =>
+                      updateQuantity(item.productId, item.selectedSize, item.selectedColor, Math.max(1, item.quantity - 1))
+                    }
                     className="px-2 py-1 bg-gray-200 rounded-l"
                   >
                     -
                   </button>
                   <span className="px-4 py-1 border">{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.productId, item.selectedSize, item.selectedColor, item.quantity + 1)}
+                    onClick={() =>
+                      updateQuantity(item.productId, item.selectedSize, item.selectedColor, item.quantity + 1)
+                    }
                     className="px-2 py-1 bg-gray-200 rounded-r"
                   >
                     +
@@ -86,7 +91,6 @@ const CartPage = () => {
             </div>
           ))}
 
-          {/* ✅ Order Summary - Now placed outside the loop! */}
           <div className="mt-6 p-4 border rounded-md shadow-md">
             <h2 className="text-xl font-bold mb-2">Order Summary</h2>
             <p>Subtotal: PKR {subtotal.toFixed(2)}</p>
@@ -94,12 +98,14 @@ const CartPage = () => {
             <p className="text-lg font-bold">Grand Total: PKR {grandTotal.toFixed(2)}</p>
           </div>
 
-          {/* Checkout and Clear Cart Buttons */}
           <div className="mt-6 flex justify-between items-center">
             <button onClick={clearCart} className="text-red-600">
               Clear Cart
             </button>
-            <button onClick={handleCheckout} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+            <button
+              onClick={handleCheckout}
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+            >
               Checkout via WhatsApp
             </button>
           </div>
