@@ -1,178 +1,170 @@
-"use client"; // Add this directive to indicate it's a client component
+"use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-// Define types for form data
-interface FormData {
-  title: string;
-  description: string;
-  price: string;
-  discountedPrice: string;
-  fabric: string;
-  sizeOptions: string;
-  category: string;
-  image: File | null;
-  gallery: File[];
-  sizeChart: File | null;
-}
+const AdminPanel = () => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
+  const [sizeOptions, setSizeOptions] = useState<string[]>([]);
+  const [piecesIncluded, setPiecesIncluded] = useState<string[]>([]);
+  const [fabric, setFabric] = useState("");
+  const [color, setColor] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [gallery, setGallery] = useState<File[]>([]);
+  const [sizeChart, setSizeChart] = useState<File | null>(null);
+  const router = useRouter();
 
-export default function AdminPanel() {
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    description: "",
-    price: "",
-    discountedPrice: "",
-    fabric: "",
-    sizeOptions: "",
-    category: "",
-    image: null,
-    gallery: [],
-    sizeChart: null,
-  });
-
-  // handleChange
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target as HTMLInputElement;
-    const files = (e.target as HTMLInputElement).files;
-    if (files) {
-      if (name === "gallery") {
-        setFormData((prev) => ({ ...prev, gallery: Array.from(files) }));
-      } else {
-        setFormData((prev) => ({ ...prev, [name]: files[0] }));
-      }
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  // handleSubmit
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = new FormData();
 
-    // Append all form fields to FormData
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === "gallery" && Array.isArray(value)) {
-        value.forEach((file) => data.append("gallery", file));
-      } else if (key !== "sizeOptions") {
-        data.append(key, value as string | Blob); // Specify appropriate types for the FormData
-      } else {
-        // Handling sizeOptions as a JSON string to send as an array
-        data.append(key, JSON.stringify(value));
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("discountedPrice", discountedPrice);
+    formData.append("sizeOptions", JSON.stringify(sizeOptions));
+    formData.append("piecesIncluded", JSON.stringify(piecesIncluded));
+    formData.append("fabric", fabric);
+    formData.append("color", color);
+
+    if (image) formData.append("image", image);
+    if (gallery.length > 0) gallery.forEach((file) => formData.append("gallery", file));
+    if (sizeChart) formData.append("sizeChart", sizeChart);
+
+    try {
+      const response = await axios.post("/api/products", formData);
+      if (response.status === 200) {
+        router.push("/admin"); // Redirect to admin panel or confirmation page
       }
-    });
-
-    const res = await fetch("/api/products", {
-      method: "POST",
-      body: data,
-    });
-
-    const result = await res.json();
-    if (result.success) {
-      alert("✅ Product added successfully!");
-    } else {
-      alert("❌ Failed to add product: " + result.message);
+    } catch (error) {
+      console.error("Error adding product:", error);
     }
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4">Admin Panel – Add Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
-        <input
-          name="title"
-          type="text"
-          onChange={handleChange}
-          placeholder="Title"
-          className="w-full p-2 border"
-        />
-        {/* Description */}
-        <textarea
-          name="description"
-          onChange={handleChange}
-          placeholder="Description"
-          className="w-full p-2 border"
-        />
-        {/* Price */}
-        <input
-          name="price"
-          type="number"
-          onChange={handleChange}
-          placeholder="Price"
-          className="w-full p-2 border"
-        />
-        {/* Discounted Price */}
-        <input
-          name="discountedPrice"
-          type="number"
-          onChange={handleChange}
-          placeholder="Discounted Price"
-          className="w-full p-2 border"
-        />
-        {/* Fabric */}
-        <input
-          name="fabric"
-          type="text"
-          onChange={handleChange}
-          placeholder="Fabric"
-          className="w-full p-2 border"
-        />
-        {/* Size Options */}
-        <input
-          name="sizeOptions"
-          type="text"
-          onChange={handleChange}
-          placeholder='Sizes (e.g. ["S","M","L"])'
-          className="w-full p-2 border"
-        />
-        {/* Category Dropdown */}
-        <label>Category:</label>
-        <select
-          name="category"
-          onChange={handleChange}
-          className="w-full p-2 border"
-          value={formData.category}
-        >
-          <option value="">-- Select Category --</option>
-          <option value="stitched">Stitched</option>
-          <option value="unstitched">Unstitched</option>
-          <option value="trouser">Trouser</option>
-        </select>
-
-        {/* Images */}
-        <label>Thumbnail Image:</label>
-        <input
-          name="image"
-          type="file"
-          accept="image/*"
-          onChange={handleChange}
-        />
-
-        <label>Gallery Images:</label>
-        <input
-          name="gallery"
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleChange}
-        />
-
-        <label>Size Chart:</label>
-        <input
-          name="sizeChart"
-          type="file"
-          accept="image/*"
-          onChange={handleChange}
-        />
-
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Add Product</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Product Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Product Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4 flex gap-4">
+          <div className="w-1/2">
+            <label className="block text-lg font-medium">Price</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full p-2 border rounded mt-2"
+              required
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block text-lg font-medium">Discounted Price</label>
+            <input
+              type="number"
+              value={discountedPrice}
+              onChange={(e) => setDiscountedPrice(e.target.value)}
+              className="w-full p-2 border rounded mt-2"
+            />
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Size Options (comma separated)</label>
+          <input
+            type="text"
+            value={sizeOptions.join(",")}
+            onChange={(e) => setSizeOptions(e.target.value.split(","))}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Size Options (comma separated)</label>
+          <input
+            type="text"
+            value={piecesIncluded.join(",")}
+            onChange={(e) => setPiecesIncluded(e.target.value.split(","))}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Fabric</label>
+          <input
+            type="text"
+            value={fabric}
+            onChange={(e) => setFabric(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Color</label>
+          <input
+            type="text"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Product Image</label>
+          <input
+            type="file"
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            className="w-full p-2 border rounded mt-2"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Product Gallery</label>
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setGallery(Array.from(e.target.files || []))}
+            className="w-full p-2 border rounded mt-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-lg font-medium">Size Chart (Optional)</label>
+          <input
+            type="file"
+            onChange={(e) => setSizeChart(e.target.files ? e.target.files[0] : null)}
+            className="w-full p-2 border rounded mt-2"
+          />
+        </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded"
+          className="bg-blue-600 text-white p-3 rounded-md mt-4 w-full"
         >
-          Upload Product
+          Add Product
         </button>
       </form>
     </div>
-  );
-}
+  );  
+};
+
+export default AdminPanel;
