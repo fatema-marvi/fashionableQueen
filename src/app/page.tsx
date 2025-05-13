@@ -6,7 +6,7 @@ import StitchPage from "./stitch/page";
 import UnStitchPage from "./unstitch/page";
 import TrouserPage from "./trouser/page";
 import { motion } from "framer-motion";
-import Header from "./components/Header/page"
+import { SlideHeader } from "./components/Header/page"; // ✅ Import Header
 
 // Reusable Section Heading with Gradient Colors & Animation
 interface SectionHeadingProps {
@@ -20,7 +20,7 @@ const SectionHeading: React.FC<SectionHeadingProps> = ({ text, gradient }) => {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`text-4xl font-extrabold text-center my-10 bg-gradient-to-r ${gradient} text-transparent bg-clip-text`}
+      className={`text-3xl font-extrabold text-center mb-1 bg-gradient-to-r ${gradient} text-transparent bg-clip-text`}
     >
       {text}
     </motion.h2>
@@ -32,15 +32,14 @@ const Home = () => {
     
     <div>
       {/* ✅ Header with Animation */}
-      <Header />
+      <SlideHeader />
       {/* ✅ Hero Image below Navbar */}
-      <div className="relative w-full h-[400px]">
+      <div className="relative w-full h-[200px] sm:h-[350px] md:h-[400px] lg:h-[500px] xl:h-[600px] mb-4">
   <Image
-    src="/logo.jpeg"
+    src="/hero.jpeg"
     alt="Hero Image"
-    fill // ✅ replaces layout="fill"
-    className="object-cover" // ✅ replaces objectFit="cover"
-    priority
+    fill
+    className="object-contain object-top"
   />
 </div>
 
@@ -50,7 +49,7 @@ const Home = () => {
           text="✨ Stitched Collection"
           gradient="from-purple-500 via-pink-500 to-red-500"
         />
-        <div className="flex flex-wrap justify-center gap-6 w-full">
+        <div className="flex flex-wrap justify-center gap-4 w-full">
           <StitchPage />
         </div>
       </section>

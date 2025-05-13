@@ -81,7 +81,7 @@ const getProductUrl = (product: RelatedProduct) => {
 const ProductDetail = ({ product }: ProductDetailProps) => {
   const { addToCart } = useCart()
   const [selectedSize, setSelectedSize] = useState<string>("")
-  const [selectedImage, setSelectedImage] = useState<string>(product?.imageUrl || "")
+  const [selectedImage, setSelectedImage] = useState<string | null>(null) // ✅ Initialize with null
   const [reviews, setReviews] = useState(product?.reviews || [])
   const [reviewFormVisible, setReviewFormVisible] = useState(false)
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
@@ -106,7 +106,6 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
       if (!product?._id || !product?.fabric) return
 
       try {
-        console.log(`Fetching related products for ID: ${product._id}, fabric: ${product.fabric}`)
         const res = await fetch(
           `/api/related-products?productId=${product._id}&fabric=${encodeURIComponent(product.fabric)}`,
         )
@@ -116,7 +115,6 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         }
 
         const data = await res.json()
-        console.log("Related products data:", data)
         setRelatedProducts(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error("Error fetching related products:", error)
@@ -124,7 +122,6 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
       }
     }
 
-    // Only run these effects when the product ID changes
     if (product?._id) {
       fetchReviews()
       fetchRelatedProducts()
@@ -135,18 +132,22 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
     return <p className="text-center text-red-500">⚠️ Product not found.</p>
   }
 
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      alert("Please select a size.")
-      return
-    }
+ const handleAddToCart = () => {
+  // Alert only for 'stitch' and 'trouser' categories
+  if (
+    (product?.category === "stitch" || product?.category === "trouser") &&
+    !selectedSize
+  ) {
+    alert("Please select a size.")
+    return
+  }
 
     const newItem = {
       productId: product._id,
       name: product.title,
       price: product.discountedPrice || product.price,
       quantity: 1,
-      imageUrl: selectedImage,
+      imageUrl: product.image?.asset?.url,
       selectedSize,
       selectedColor: "",
     }
@@ -196,19 +197,22 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto mt-6 p-6">
       <div className="flex flex-wrap md:flex-nowrap">
         {/* Main Image */}
         <div className="w-full md:w-1/2 p-4">
-          {selectedImage && (
+          <div
+            className="relative w-full h-64 overflow-hidden rounded-xl cursor-pointer"
+            onClick={() => setSelectedImage(product.imageUrl)} // ✅ Open modal on click
+          >
             <Image
-              src={selectedImage || "/placeholder.svg"}
+              src={product.imageUrl || "/placeholder.svg"}
               alt={product.title}
               width={500}
               height={600}
               className="rounded-lg object-cover"
             />
-          )}
+          </div>
         </div>
 
         {/* Product Info */}
@@ -221,29 +225,30 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             </span>
           )}
 
-          <p className="text-gray-600 mt-2">{product.description}</p>
+         
+              <p className="text-gray-600 dark:text-gray-300 mt-2">{product.description}</p>
 
-          {product.fabric && (
-            <p className="mt-2 text-sm text-gray-700">
-              <strong>Fabric:</strong> {product.fabric}
-            </p>
-          )}
+{product.fabric && (
+  <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+    <strong>Fabric:</strong> {product.fabric}
+  </p>
+)}
 
-          {(product.piecesIncluded ?? []).length > 0 && (
-            <div className="mt-2 text-sm text-gray-700">
-              <strong>Includes:</strong>
-              <ul className="list-disc list-inside">
-                {(product.piecesIncluded ?? []).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+{(product.piecesIncluded ?? []).length > 0 && (
+  <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+    <strong>Includes:</strong>
+    <ul className="list-disc list-inside">
+      {(product.piecesIncluded ?? []).map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  </div>
+)}
 
           <div className="mt-4 flex items-center gap-2 text-xl">
             {product.discountedPrice ? (
               <>
-                <span className="text-gray-500 line-through">PKR {product.price}</span>
+                <span className="text-gray-500 dark:text-gray-200 line-through">PKR {product.price}</span>
                 <span className="text-blue-600 font-bold">PKR {product.discountedPrice}</span>
               </>
             ) : (
@@ -251,47 +256,61 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             )}
           </div>
 
-          {/* Size Dropdown */}
+          {/* Size Radio Buttons */}
           {product.sizeOptions?.length ? (
-            <div className="mt-6">
-              <label className="block text-lg font-medium mb-2">Select Size</label>
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="p-2 border rounded-md w-full"
-              >
-                <option value="">Select Size</option>
+            <div className="mt-4 w-full max-w-full">
+              <p className="block mb-1 text-sm font-medium">Select Size</p>
+              <div className="flex flex-wrap gap-2">
                 {product.sizeOptions.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
+                  <label key={size} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="size"
+                      value={size}
+                      checked={selectedSize === size}
+                      onChange={(e) => setSelectedSize(e.target.value)}
+                      className="form-radio text-blue-600"
+                    />
+                    <span className="text-sm">{size}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
           ) : null}
 
           {/* Size Chart */}
           {product.sizeChart?.asset.url && (
-            <div className="mt-6">
+            <div className="mt-6 w-full max-w-full">
               <p className="text-sm font-medium mb-1">Size Chart</p>
-              <Image
-                src={product.sizeChart.asset.url || "/placeholder.svg"}
-                alt="Size Chart"
-                width={300}
-                height={300}
-                className="border rounded-md"
-              />
-
+              <div
+                className="relative w-full h-64 overflow-hidden rounded-xl cursor-pointer"
+                onClick={() => setSelectedImage(product.sizeChart?.asset.url || "")} // ✅ Open modal on click
+              >
+                <Image
+                  src={product.sizeChart.asset.url || "/placeholder.svg"}
+                  alt="Size Chart"
+                  width={300}
+                  height={300}
+                  className="border rounded-md"
+                />
+              </div>
             </div>
           )}
 
           {/* Add to Cart */}
-          <button
-            onClick={handleAddToCart}
-            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Add to Cart
-          </button>
+          <div className="mt-6 group">
+            <button
+              onClick={handleAddToCart}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg 
+           shadow-sm hover:bg-blue-700 hover:shadow-md 
+           active:bg-blue-700 active:shadow-md 
+           transition duration-300 ease-in-out"
+
+            >
+              Add to Cart
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -304,7 +323,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
               <div
                 key={idx}
                 className="w-20 h-20 border rounded-md overflow-hidden cursor-pointer"
-                onClick={() => setSelectedImage(imgObj.asset.url)}
+                onClick={() => setSelectedImage(imgObj.asset.url)} // ✅ Open modal on click
               >
                 <Image
                   src={imgObj.asset.url || "/placeholder.svg"}
@@ -333,8 +352,8 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
                       {"☆".repeat(5 - review.rating)} ({review.rating}/5)
                     </p>
                   </div>
-                  <p className="mt-2 text-gray-700">{review.review}</p>
-                  <p className="mt-1 text-sm text-gray-500 italic">
+                  <p className="mt-2 text-gray-700 dark:text-gray-200">{review.review}</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-200 italic">
                     - {review.author}
                     {review.createdAt && <> • {timeAgo(review.createdAt)}</>}
                   </p>
@@ -343,14 +362,14 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             </div>
           </>
         ) : (
-          <p className="text-gray-500 italic">No reviews yet.</p>
+          <p className="text-gray-500 dark:text-gray-200 italic">No reviews yet.</p>
         )}
 
         {!reviewFormVisible && (
-          <div className="mt-8">
+          <div className="mt-10">
             <button
               onClick={() => setReviewFormVisible(true)}
-              className="text-blue-600 underline hover:text-blue-800 text-sm"
+              className="text-blue-600 hover:text-blue-800 underline text-sm font-medium transition-all duration-300"
             >
               Leave a Review
             </button>
@@ -358,47 +377,76 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         )}
 
         {reviewFormVisible && (
-          <div className="mt-4 max-w-md border rounded-md p-4 shadow-sm bg-gray-50">
-            <h3 className="text-lg font-semibold mb-2">Leave a Review</h3>
+          <div className="mt-6 max-w-lg border rounded-lg p-6 shadow bg-white">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">Leave a Review</h3>
+
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
-                const form = e.target as HTMLFormElement
+                const form = e.currentTarget
                 const rating = Number((form.elements.namedItem("rating") as HTMLInputElement).value)
-                const review = (form.elements.namedItem("review") as HTMLInputElement).value
+                const review = (form.elements.namedItem("review") as HTMLTextAreaElement).value
                 const author = (form.elements.namedItem("author") as HTMLInputElement).value
 
-                await handleReviewSubmit(rating, review, author)
+                try {
+                  await handleReviewSubmit(rating, review, author)
+                  // Optional: clear form or hide form after submission
+                  form.reset()
+                } catch (err) {
+                  console.error("Review submission failed:", err)
+                  alert("Error submitting review. Please try again.")
+                }
               }}
-              className="space-y-3"
+              className="space-y-4"
             >
               <div>
-                <label className="block text-sm">Name</label>
-                <input type="text" name="author" required className="w-full border p-1 rounded-md text-sm" />
+                <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="author"
+                  id="author"
+                  required
+                  className="w-full mt-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white dark:border-gray-600 bg-white text-gray-800 border-gray-300"
+                />
               </div>
+
               <div>
-                <label className="block text-sm">Rating (1–5)</label>
+                <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
+                  Rating (1–5)
+                </label>
                 <input
                   type="number"
                   name="rating"
+                  id="rating"
                   min={1}
                   max={5}
                   required
-                  className="w-full border p-1 rounded-md text-sm"
+                  className="w-full mt-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white dark:border-gray-600 bg-white text-gray-800 border-gray-300"
                 />
               </div>
+
               <div>
-                <label className="block text-sm">Review</label>
-                <textarea name="review" rows={3} required className="w-full border p-1 rounded-md text-sm" />
+                <label htmlFor="review" className="block text-sm font-medium text-gray-700">
+                  Review
+                </label>
+                <textarea
+                  name="review"
+                  id="review"
+                  rows={3}
+                  required
+                  className="w-full mt-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-800 dark:text-white dark:border-gray-600 bg-white text-gray-800 border-gray-300"
+                />
               </div>
+
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className={`px-4 py-1 text-white text-sm rounded ${
-                  isSubmittingReview ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`w-full py-2 px-4 text-white text-sm font-semibold rounded-md transition 
+          ${isSubmittingReview ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
               >
-                {isSubmittingReview ? "Submitting..." : "Submit"}
+                {isSubmittingReview ? "Submitting..." : "Submit Review"}
               </button>
             </form>
           </div>
@@ -406,31 +454,48 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
       </div>
 
       {/* You May Also Like Section */}
-      <div className="mt-12">
-        <h3 className="text-3xl text-red-900 font-semibold mb-4">You May Also Like</h3>
+      <div className="mt-16">
+        <h3 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
+          You May Also Like
+        </h3>
+
         {relatedProducts && relatedProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {relatedProducts.map((item) => (
-              <Link href={getProductUrl(item)} key={item._id}>
-                <div className="border rounded-lg p-4 hover:shadow-md transition duration-200">
+              <Link
+                href={getProductUrl(item)}
+                key={item._id}
+                className="block group"
+              >
+                <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out bg-white">
                   <div className="relative w-full h-64">
                     <Image
                       src={item.imageUrl || "/placeholder.svg"}
-                      alt={item.title}
+                      alt={item.title || "Product Image"}
                       fill
-                      className="object-cover w-full h-full rounded"
+                      className="object-cover rounded-t-xl"
                     />
                   </div>
-                  <h4 className="mt-2 font-medium text-lg">{item.title}</h4>
-                  <div className="text-sm mt-1">
-                    {item.discountedPrice ? (
-                      <>
-                        <span className="line-through text-gray-500 mr-2">PKR {item.price}</span>
-                        <span className="text-blue-600 font-bold">PKR {item.discountedPrice}</span>
-                      </>
-                    ) : (
-                      <span className="text-blue-600 font-bold">PKR {item.price}</span>
-                    )}
+                  <div className="p-4">
+                    <h4 className="text-lg font-semibold text-gray-700 group-hover:text-blue-600 transition">
+                      {item.title}
+                    </h4>
+                    <div className="text-sm mt-2">
+                      {item.discountedPrice ? (
+                        <>
+                          <span className="line-through text-gray-400 mr-2">
+                            PKR {item.price}
+                          </span>
+                          <span className="text-blue-600 font-bold">
+                            PKR {item.discountedPrice}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-blue-600 font-bold">
+                          PKR {item.price}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -438,6 +503,25 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
           </div>
         ) : (
           <p className="text-gray-500 italic">Loading related products...</p>
+        )}
+
+        {/* Modal for Image Preview */}
+        {selectedImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
+            <div className="relative">
+              <img
+                src={selectedImage}
+                alt="Full View"
+                className="max-h-[90vh] max-w-[90vw] rounded-lg"
+              />
+              <button
+                onClick={() => setSelectedImage(null)} // ✅ Close modal on click
+                className="absolute top-2 right-2 bg-white text-black p-2 rounded-full text-lg"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -7,7 +7,7 @@ const product = {
   fields: [
     {
       name: 'name',
-      title: 'Product Name',
+      title: 'Product Title',
       type: 'string',
       validation: (Rule: Rule) => Rule.required().min(3).max(100),
     },
@@ -32,10 +32,17 @@ const product = {
       },
     },
     {
-      name: 'category',
-      title: 'Category',
-      type: 'string',
-    },
+  name: "category",
+  title: "Category",
+  type: "string",
+  options: {
+    list: [
+      { title: "Stitched", value: "stitch" },
+      { title: "Unstitched", value: "unstitch" },
+      { title: "Trouser", value: "trouser" },
+    ],
+  },
+},
     {
       name: 'createdAt',
       title: 'Created At',

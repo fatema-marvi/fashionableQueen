@@ -3,40 +3,39 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-const SlideHeader = () => {
+export const SlideHeader = () => {
   return (
     <motion.div
-      className="bg-yellow-600 text-white py-2 flex items-center justify-center px-4 relative"
-      initial={{ opacity: 0, x: "-100%" }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ type: "spring", stiffness: 100, duration: 1 }}
+      className="bg-gradient-to-r from-rose-500 to-amber-950 text-white py-0.5 w-full fixed top-0 left-0 z-50"
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Animated Truck Icon */}
-      <motion.div
-        className="absolute left-0"
-        animate={{ x: "100%" }}
-        transition={{
-          repeat: Infinity,
-          repeatType: "loop",
-          duration: 5,
-          ease: "linear",
-        }}
-      >
-        <Image
-          src="/truck.png" // Replace with your own truck image path
-          alt="Courier Truck"
-          width={50}
-          height={50}
-          priority
-        />
-      </motion.div>
+      <div className="container mx-auto px-4 flex justify-center items-center relative h-8">
+        {/* Moving Truck Animation */}
+        <motion.div
+          className="absolute left-4"
+          animate={{ x: ["-100%", "120vw"] }}
+          transition={{
+            repeat: Infinity,
+            duration: 15,
+            ease: "linear"
+          }}
+        >
+          <Image
+            src="/truck.png"
+            alt="Free Delivery"
+            width={24}
+            height={24}
+            className="h-6 w-6 object-contain"
+          />
+        </motion.div>
 
-      {/* Centered FREE DELIVERY Text */}
-      <div className="flex items-center space-x-3 justify-center">
-        <span className="text-4xl text-green-800 font-semibold">FREE DELIVERY</span>
+        {/* Announcement Text */}
+        <span className="text-xs md:text-sm font-bold tracking-wider whitespace-nowrap">
+          🚚 FREE NATIONWIDE DELIVERY ON ALL ORDERS 🚚
+        </span>
       </div>
     </motion.div>
   );
 };
-
-export default SlideHeader;

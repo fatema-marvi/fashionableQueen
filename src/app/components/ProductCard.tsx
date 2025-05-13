@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           alt={title}
           layout="fill"
           objectFit="cover"
-          className="rounded-md"
+          className="rounded-md transition-transform transform hover:scale-105"
         />
       </div>
 
@@ -46,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       <Link href={`/product/${_id}`}>
-        <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md w-full hover:bg-blue-700 transition">
+        <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md w-full hover:bg-blue-700 transition-transform duration-200">
           View Details
         </button>
       </Link>

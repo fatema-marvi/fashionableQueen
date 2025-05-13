@@ -13,25 +13,23 @@ const CartPage = () => {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fashionable-queen.vercel.app/"; // Replace as needed
 
   const handleCheckout = () => {
-    if (cart.length === 0) {
-      alert("Your cart is empty!");
-      return;
-    }
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
 
-    const message = cart
-      .map((item, index) => {
-        // Ensure full URL for image
-        const imageUrl = item.imageUrl.startsWith("http")
-          ? item.imageUrl
-          : `${baseUrl}${item.imageUrl.startsWith("/") ? "" : "/"}${item.imageUrl}`;
+   const message = cart
+  .map((item, index) => {
+    const rawImageUrl = item.imageUrl || "";
+    const imageUrl = rawImageUrl.startsWith("http")
+      ? rawImageUrl
+      : `${baseUrl}${rawImageUrl.startsWith("/") ? "" : "/"}${rawImageUrl}`;
 
-        return `${index + 1}) ${item.name}
-Size: ${item.selectedSize}, Color: ${item.selectedColor}, Qty: ${item.quantity}
+    return `${index + 1}) ${item.name}
+Size: ${item.selectedSize || "N/A"}, Color: ${item.selectedColor || "N/A"}, Qty: ${item.quantity}
 Price: PKR ${item.price.toFixed(2)}
 Image: ${imageUrl}`;
-      })
-      .join("\n\n");
-
+  })
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + 250;
 
     const finalMessage = `Hello! I'd like to place the following order:\n\n${message}\n\nGrand Total: PKR ${total.toFixed(2)}`;
@@ -57,13 +55,20 @@ Image: ${imageUrl}`;
               key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
               className="flex items-center border-b py-4"
             >
-              <Image
-                src={item.imageUrl.startsWith("http") ? item.imageUrl : `${baseUrl}${item.imageUrl}`}
-                alt={item.name}
-                width={80}
-                height={80}
-                className="rounded-lg"
-              />
+             <Image
+  src={
+    item.imageUrl?.startsWith("http")
+      ? item.imageUrl
+      : item.imageUrl
+        ? `${baseUrl}${item.imageUrl}`
+        : "/placeholder.svg"
+  }
+  alt={item.name}
+  width={80}
+  height={80}
+  className="rounded-lg"
+/>
+
               <div className="ml-4 flex-grow">
                 <h2 className="text-lg font-semibold">{item.name}</h2>
                 <p className="text-gray-600">

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['cdn.sanity.io','https://fashionable-queen.vercel.app'],
+    domains: ['cdn.sanity.io', 'fashionable-queen.vercel.app'],
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,6 +9,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  transpilePackages: ['rxjs'],
 };
 
 module.exports = nextConfig;

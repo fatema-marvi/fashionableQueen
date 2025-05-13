@@ -4,9 +4,11 @@ import { faFacebookF, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 const AboutPage = () => {
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto mt-10 px-4 py-10">
       {/* Header Section */}
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">About Fashionable Queen</h1>
+      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">About <span className="md:text-2xl lg:text-3xl font-playfair font-bold text-gray-800 tracking-wide italic hover:text-rose-600 transition-colors">
+              <span className="text-white" style={{ color: "var(--logo)" }}>Fashionable</span>Queen
+            </span></h1>
 
       {/* About Content */}
       <div className="text-lg text-gray-700">
