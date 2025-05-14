@@ -16,6 +16,7 @@ interface ProductDetailProps {
     description: string
     fabric: string
     sizeOptions?: string[]
+    colorOptions?: string[] // New field for color options
     image: { asset: { url: string } }
     imageUrl: string
     gallery?: { asset: { url: string } }[]
@@ -81,6 +82,7 @@ const getProductUrl = (product: RelatedProduct) => {
 const ProductDetail = ({ product }: ProductDetailProps) => {
   const { addToCart } = useCart()
   const [selectedSize, setSelectedSize] = useState<string>("")
+  const [selectedColor, setSelectedColor] = useState<string>("") // ✅ empty string
   const [selectedImage, setSelectedImage] = useState<string | null>(null) // ✅ Initialize with null
   const [reviews, setReviews] = useState(product?.reviews || [])
   const [reviewFormVisible, setReviewFormVisible] = useState(false)
@@ -149,7 +151,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
       quantity: 1,
       imageUrl: imageUrl,
       selectedSize,
-      selectedColor: "",
+      selectedColor: selectedColor ?? "", // ✅ Also correct
     }
 
     addToCart(newItem)
@@ -295,6 +297,27 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
               </div>
             </div>
           )}
+          {product.colorOptions?.length ? (
+  <div className="mt-4 w-full max-w-full">
+    <p className="block mb-1 text-sm font-medium">Select Color</p>
+    <div className="flex flex-wrap gap-2">
+      {product.colorOptions.map((color) => (
+        <label key={color} className="flex items-center gap-2">
+          <input
+            type="radio"
+            name="color"
+            value={color}
+            checked={selectedColor === color}
+            onChange={(e) => setSelectedColor(e.target.value)}
+            className="form-radio text-blue-600"
+          />
+          <span className="text-sm">{color}</span>
+        </label>
+      ))}
+    </div>
+  </div>
+) : null}
+
 
           {/* Add to Cart */}
           <div className="mt-6 group">

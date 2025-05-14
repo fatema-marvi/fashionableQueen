@@ -10,7 +10,7 @@ const CartPage = () => {
     console.log("🛒 Cart contents:", cart)
   }, [cart])
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fashionable-queen.vercel.app" // Remove trailing slash
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://fashionable-queen.vercel.app"
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -18,19 +18,15 @@ const CartPage = () => {
       return
     }
 
-    // Create a formatted message for WhatsApp
     const messageLines = cart
       .map((item, index) => {
-        // Format the image URL correctly
-        const rawImageUrl = item.imageUrl || ""
-        const imageUrl = rawImageUrl.startsWith("http")
-          ? rawImageUrl
-          : `${baseUrl}${rawImageUrl.startsWith("/") ? "" : "/"}${rawImageUrl}`
+        const imageUrl = item.imageUrl.startsWith("http")
+          ? item.imageUrl
+          : `${baseUrl}${item.imageUrl.startsWith("/") ? "" : "/"}${item.imageUrl}`
 
         return (
           `*Item ${index + 1}: ${item.name}*\n` +
-          `Size: ${item.selectedSize || "N/A"}\n` +
-          `Color: ${item.selectedColor || "N/A"}\n` +
+          `Size: ${item.selectedSize}\n` +
           `Quantity: ${item.quantity}\n` +
           `Price: PKR ${item.price.toFixed(2)}\n` +
           `Subtotal: PKR ${(item.price * item.quantity).toFixed(2)}\n` +
@@ -39,20 +35,17 @@ const CartPage = () => {
       })
       .join("\n\n")
 
-    const deliveryCharge = 0 // Set delivery charge
+    const deliveryCharge = 0
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
     const total = subtotal + deliveryCharge
 
     const finalMessage =
-      `*New Order from Fashionable Queen*\n\n` +
-      `${messageLines}\n\n` +
-      `*Order Summary*\n` +
-      `Subtotal: PKR ${subtotal.toFixed(2)}\n` +
+      `*New Order from Fashionable Queen*\n\n${messageLines}\n\n` +
+      `*Order Summary*\nSubtotal: PKR ${subtotal.toFixed(2)}\n` +
       `Delivery: PKR ${deliveryCharge.toFixed(2)}\n` +
       `*Grand Total: PKR ${total.toFixed(2)}*\n\n` +
       `Please provide your delivery address and contact number to confirm the order. Thank you!`
 
-    // Open WhatsApp with the pre-filled message
     const whatsappURL = `https://wa.me/923232979158?text=${encodeURIComponent(finalMessage)}`
     window.open(whatsappURL, "_blank")
   }
@@ -71,16 +64,14 @@ const CartPage = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           {cart.map((item) => (
             <div
-              key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
+              key={`${item.productId}-${item.selectedSize}`}
               className="flex items-center border-b py-4"
             >
               <Image
                 src={
-                  (item.imageUrl &&
-                    (item.imageUrl.startsWith("http")
-                      ? item.imageUrl
-                      : `${baseUrl}${item.imageUrl.startsWith("/") ? "" : "/"}${item.imageUrl}`)) ||
-                  "/placeholder.svg"
+                  item.imageUrl.startsWith("http")
+                    ? item.imageUrl
+                    : `${baseUrl}${item.imageUrl.startsWith("/") ? "" : "/"}${item.imageUrl}`
                 }
                 alt={item.name}
                 width={80}
@@ -91,19 +82,14 @@ const CartPage = () => {
               <div className="ml-4 flex-grow">
                 <h2 className="text-lg font-semibold">{item.name}</h2>
                 <p className="text-gray-600">
-                  Size: {item.selectedSize || "N/A"} | Color: {item.selectedColor || "N/A"}
+                  Size: {item.selectedSize}
                 </p>
                 <p className="text-gray-800 font-semibold">PKR {item.price.toFixed(2)}</p>
 
                 <div className="flex items-center mt-2">
                   <button
                     onClick={() =>
-                      updateQuantity(
-                        item.productId,
-                        item.selectedSize,
-                        item.selectedColor,
-                        Math.max(1, item.quantity - 1),
-                      )
+                      updateQuantity(item.productId, item.selectedSize, item.selectedColor, item.quantity - 1)
                     }
                     className="px-2 py-1 bg-gray-200 rounded-l"
                   >
