@@ -132,22 +132,22 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
     return <p className="text-center text-red-500">⚠️ Product not found.</p>
   }
 
- const handleAddToCart = () => {
-  // Alert only for 'stitch' and 'trouser' categories
-  if (
-    (product?.category === "stitch" || product?.category === "trouser") &&
-    !selectedSize
-  ) {
-    alert("Please select a size.")
-    return
-  }
+  const handleAddToCart = () => {
+    // Alert only for 'stitch' and 'trouser' categories
+    if ((product?.category === "stitch" || product?.category === "trouser") && !selectedSize) {
+      alert("Please select a size.")
+      return
+    }
+
+    // Make sure we have a valid image URL
+    const imageUrl = product.imageUrl || product.image?.asset?.url || ""
 
     const newItem = {
       productId: product._id,
       name: product.title,
       price: product.discountedPrice || product.price,
       quantity: 1,
-      imageUrl: product.image?.asset?.url,
+      imageUrl: imageUrl,
       selectedSize,
       selectedColor: "",
     }
@@ -225,25 +225,24 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             </span>
           )}
 
-         
-              <p className="text-gray-600 dark:text-gray-300 mt-2">{product.description}</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">{product.description}</p>
 
-{product.fabric && (
-  <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
-    <strong>Fabric:</strong> {product.fabric}
-  </p>
-)}
+          {product.fabric && (
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+              <strong>Fabric:</strong> {product.fabric}
+            </p>
+          )}
 
-{(product.piecesIncluded ?? []).length > 0 && (
-  <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
-    <strong>Includes:</strong>
-    <ul className="list-disc list-inside">
-      {(product.piecesIncluded ?? []).map((item) => (
-        <li key={item}>{item}</li>
-      ))}
-    </ul>
-  </div>
-)}
+          {(product.piecesIncluded ?? []).length > 0 && (
+            <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
+              <strong>Includes:</strong>
+              <ul className="list-disc list-inside">
+                {(product.piecesIncluded ?? []).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="mt-4 flex items-center gap-2 text-xl">
             {product.discountedPrice ? (
@@ -305,12 +304,10 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
            shadow-sm hover:bg-blue-700 hover:shadow-md 
            active:bg-blue-700 active:shadow-md 
            transition duration-300 ease-in-out"
-
             >
               Add to Cart
             </button>
           </div>
-
         </div>
       </div>
 
@@ -455,18 +452,12 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
 
       {/* You May Also Like Section */}
       <div className="mt-16">
-        <h3 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-6">
-          You May Also Like
-        </h3>
+        <h3 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-6">You May Also Like</h3>
 
         {relatedProducts && relatedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {relatedProducts.map((item) => (
-              <Link
-                href={getProductUrl(item)}
-                key={item._id}
-                className="block group"
-              >
+              <Link href={getProductUrl(item)} key={item._id} className="block group">
                 <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out bg-white">
                   <div className="relative w-full h-64">
                     <Image
@@ -483,17 +474,11 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
                     <div className="text-sm mt-2">
                       {item.discountedPrice ? (
                         <>
-                          <span className="line-through text-gray-400 mr-2">
-                            PKR {item.price}
-                          </span>
-                          <span className="text-blue-600 font-bold">
-                            PKR {item.discountedPrice}
-                          </span>
+                          <span className="line-through text-gray-400 mr-2">PKR {item.price}</span>
+                          <span className="text-blue-600 font-bold">PKR {item.discountedPrice}</span>
                         </>
                       ) : (
-                        <span className="text-blue-600 font-bold">
-                          PKR {item.price}
-                        </span>
+                        <span className="text-blue-600 font-bold">PKR {item.price}</span>
                       )}
                     </div>
                   </div>
@@ -510,7 +495,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
           <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
             <div className="relative">
               <img
-                src={selectedImage}
+                src={selectedImage || "/placeholder.svg"}
                 alt="Full View"
                 className="max-h-[90vh] max-w-[90vw] rounded-lg"
               />

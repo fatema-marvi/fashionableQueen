@@ -52,7 +52,7 @@ const StitchPage = () => {
                   src={product.imageUrl}
                   alt={product.title}
                   fill
-                  className="object-cover w-full h-full transform transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover w-full h-full transform transition-transform duration-500 group-hover:scale-105 group-focus-within:scale-105 group-active:scale-105"
                 />
               </div>
 
