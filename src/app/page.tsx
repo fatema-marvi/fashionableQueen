@@ -40,29 +40,29 @@ export default async function Home() {
   ]
 
   return (
-    <main>
-      {/* Hero Section with Image */}
+     <main>
+      {/* Hero Section with Responsive Height and Full Width Image */}
       <section className="relative">
         {/* Hero Background Image */}
-        <div className="absolute inset-0 z-0">
-          <Image src="/hero.jpeg" alt="Fashionable Queen Hero" fill priority className="object-cover" />
-          <div className="absolute inset-0 bg-black/40"></div> {/* Dark overlay for better text visibility */}
+        <div className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
+          <Image
+            src="/hero.jpeg"
+            alt="Fashionable Queen Hero"
+            fill
+            priority
+            className="object-contain md:object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 "></div> {/* Dark overlay for better text visibility */}
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 py-32 container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Fashionable Queen</h1>
-          <p className="text-lg text-gray-100 mb-8 max-w-2xl mx-auto">
-            Discover our exclusive collection of premium fashion for every occasion
-          </p>
-          <button className="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-md font-medium transition-colors">
-            Shop Now
-          </button>
-        </div>
+        <div className="absolute inset-0 flex flex-col justify-center items-center px-4 text-center">
+           </div>
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 container mx-auto px-4">
+      <section className="pt-8 pb-12 md:pt-12 md:pb-16 container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {categories.map((category) => (
