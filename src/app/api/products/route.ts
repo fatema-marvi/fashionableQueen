@@ -1,15 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/sanity/lib/client" // adjust path
+import { dataset, projectId } from "@/sanity/env"
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!
-const token = process.env.SANITY_API_WRITE_TOKEN!
+// ✅ Use correct config format for App Router (Next.js 13+)
+export const dynamic = "force-dynamic" // Optional: avoids caching issues
+
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION!,
+  useCdn: false,
+  token: process.env.NEXT_PUBLIC_SANITY_TOKEN!,
+})
 
 const uploadClient = createClient({
   projectId,
   dataset,
   apiVersion: "2023-10-01",
-  token,
+  token: process.env.NEXT_PUBLIC_SANITY_TOKEN!,
   useCdn: false,
 })
 
@@ -70,7 +78,7 @@ export async function POST(req: NextRequest) {
       projectId,
       dataset,
       apiVersion: "2023-10-01",
-      token,
+      token: process.env.NEXT_PUBLIC_SANITY_TOKEN!,
       useCdn: false,
     })
     const result = await writeClientInstance.create(doc)

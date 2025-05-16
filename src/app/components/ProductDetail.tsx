@@ -89,6 +89,13 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([])
 
+  const piecesIncluded =
+    product && Array.isArray(product.piecesIncluded)
+      ? product.piecesIncluded
+      : product && typeof product?.piecesIncluded === "string"
+        ? [product.piecesIncluded]
+        : []
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -204,15 +211,14 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
         {/* Main Image */}
         <div className="w-full md:w-1/2 p-4">
           <div
-            className="relative w-full h-64 overflow-hidden rounded-xl cursor-pointer"
-            onClick={() => setSelectedImage(product.imageUrl)} // ✅ Open modal on click
+            className="relative w-full h-[500px] overflow-hidden rounded-xl cursor-pointer"
+            onClick={() => setSelectedImage(product.imageUrl)}
           >
             <Image
               src={product.imageUrl || "/placeholder.svg"}
               alt={product.title}
-              width={500}
-              height={600}
-              className="rounded-lg object-cover"
+              fill
+              className="rounded-lg object-contain"
             />
           </div>
         </div>
@@ -235,12 +241,15 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             </p>
           )}
 
-          {(product.piecesIncluded ?? []).length > 0 && (
-            <div className="mt-2 text-sm text-gray-700 dark:text-gray-200">
-              <strong>Includes:</strong>
-              <ul className="list-disc list-inside">
-                {(product.piecesIncluded ?? []).map((item) => (
-                  <li key={item}>{item}</li>
+          {/* Fix: Use our safe piecesIncluded array instead of product.piecesIncluded */}
+          {piecesIncluded.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Pieces Included</h2>
+              <ul className="list-disc pl-5">
+                {piecesIncluded.map((piece, index) => (
+                  <li key={index} className="text-gray-700">
+                    {piece}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -282,42 +291,40 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
           {/* Size Chart */}
           {product.sizeChart?.asset.url && (
             <div className="mt-6 w-full max-w-full">
-              <p className="text-sm font-medium mb-1">Size Chart</p>
+              <p className="text-sm font-medium mb-2">Size Chart</p>
               <div
-                className="relative w-full h-64 overflow-hidden rounded-xl cursor-pointer"
-                onClick={() => setSelectedImage(product.sizeChart?.asset.url || "")} // ✅ Open modal on click
+                className="relative w-full h-80 overflow-hidden rounded-xl cursor-pointer"
+                onClick={() => setSelectedImage(product.sizeChart?.asset.url || "")}
               >
                 <Image
                   src={product.sizeChart.asset.url || "/placeholder.svg"}
                   alt="Size Chart"
-                  width={300}
-                  height={300}
-                  className="border rounded-md"
+                  fill
+                  className="border rounded-md object-contain"
                 />
               </div>
             </div>
           )}
           {product.colorOptions?.length ? (
-  <div className="mt-4 w-full max-w-full">
-    <p className="block mb-1 text-sm font-medium">Select Color</p>
-    <div className="flex flex-wrap gap-2">
-      {product.colorOptions.map((color) => (
-        <label key={color} className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="color"
-            value={color}
-            checked={selectedColor === color}
-            onChange={(e) => setSelectedColor(e.target.value)}
-            className="form-radio text-blue-600"
-          />
-          <span className="text-sm">{color}</span>
-        </label>
-      ))}
-    </div>
-  </div>
-) : null}
-
+            <div className="mt-4 w-full max-w-full">
+              <p className="block mb-1 text-sm font-medium">Select Color</p>
+              <div className="flex flex-wrap gap-2">
+                {product.colorOptions.map((color) => (
+                  <label key={color} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="color"
+                      value={color}
+                      checked={selectedColor === color}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="form-radio text-blue-600"
+                    />
+                    <span className="text-sm">{color}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {/* Add to Cart */}
           <div className="mt-6 group">
@@ -337,19 +344,18 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
       {/* Gallery */}
       {product.gallery?.length ? (
         <div className="w-full mt-10 p-4">
-          <h3 className="text-lg font-semibold mb-2">Gallery</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="text-lg font-semibold mb-4">Gallery</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {product.gallery.map((imgObj, idx) => (
               <div
                 key={idx}
-                className="w-20 h-20 border rounded-md overflow-hidden cursor-pointer"
-                onClick={() => setSelectedImage(imgObj.asset.url)} // ✅ Open modal on click
+                className="relative w-full h-40 border rounded-md overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => setSelectedImage(imgObj.asset.url)}
               >
                 <Image
                   src={imgObj.asset.url || "/placeholder.svg"}
                   alt={`${product.title} thumbnail`}
-                  width={80}
-                  height={80}
+                  fill
                   className="object-cover"
                 />
               </div>
@@ -482,7 +488,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
             {relatedProducts.map((item) => (
               <Link href={getProductUrl(item)} key={item._id} className="block group">
                 <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out bg-white">
-                  <div className="relative w-full h-64">
+                  <div className="relative w-full h-80">
                     <Image
                       src={item.imageUrl || "/placeholder.svg"}
                       alt={item.title || "Product Image"}
@@ -515,16 +521,16 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
 
         {/* Modal for Image Preview */}
         {selectedImage && (
-          <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
-            <div className="relative">
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex justify-center items-center p-4">
+            <div className="relative max-w-[95vw] max-h-[95vh]">
               <img
                 src={selectedImage || "/placeholder.svg"}
                 alt="Full View"
-                className="max-h-[90vh] max-w-[90vw] rounded-lg"
+                className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
               />
               <button
-                onClick={() => setSelectedImage(null)} // ✅ Close modal on click
-                className="absolute top-2 right-2 bg-white text-black p-2 rounded-full text-lg"
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-2 right-2 bg-white text-black p-2 rounded-full text-lg hover:bg-gray-200 transition-colors"
               >
                 ✕
               </button>

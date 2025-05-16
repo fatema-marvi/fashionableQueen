@@ -11,6 +11,14 @@ const product = {
       type: 'string',
       validation: (Rule: Rule) => Rule.required().min(3).max(100),
     },
+     {
+      name: "piecesIncluded",
+      title: "Pieces Included",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "List of pieces included in this product",
+    },
+    
     {
       name: 'description',
       title: 'Description',
