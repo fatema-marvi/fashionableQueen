@@ -39,32 +39,10 @@ export default async function Home() {
     },
   ]
 
- const CategoryCard = ({ title, description, imageUrl, href }) => {
-    return (
-      <a href={href} className="block">
-        <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
-          <Image
-            src={imageUrl || "/placeholder.svg"}
-            alt={title}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-          <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4">
-            <h3 className="text-xl font-semibold text-white">{title}</h3>
-            <p className="text-gray-200 text-sm">{description}</p>
-          </div>
-        </div>
-      </a>
-    )
-  }
-
   return (
-    <main className="overflow-x-hidden">
-      {/* Hero Section with Negative Top Margin to Stick to Navbar */}
-      <section className="relative -mt-16">
-        {" "}
-        {/* Adjust this value as needed */}
+     <main>
+      {/* Hero Section with Responsive Height and Full Width Image */}
+      <section className="relative">
         {/* Hero Background Image */}
         <div className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
           <Image
@@ -75,17 +53,17 @@ export default async function Home() {
             className="object-contain md:object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0"></div>
+          <div className="absolute inset-0 "></div> {/* Dark overlay for better text visibility */}
         </div>
+
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col justify-center items-center px-4 text-center">
-          {/* Your hero content here */}
-        </div>
+           </div>
       </section>
 
-      {/* Categories Section - Reduced Top Padding */}
-      <section className="pt-4 pb-12 md:pt-6 md:pb-16 container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8">Shop by Category</h2>
+      {/* Categories Section */}
+      <section className="pt-8 pb-12 md:pt-12 md:pb-16 container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {categories.map((category) => (
             <CategoryCard
